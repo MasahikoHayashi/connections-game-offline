@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connections - Game Result</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+body {
+font-family: 'Inter', sans-serif;
+background-color: #f0f2f5;
+display: flex;
+justify-content: center;
+align-items: flex-start;
+min-height: 100vh;
+padding: 20px;
+box-sizing: border-box;
+font-size: 16px;
+}
+.container {
+background-color: #ffffff;
+padding: 2.5rem;
+border-radius: 1.5rem;
+box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+max-width: 900px;
+width: 100%;
+text-align: center;
+border: 1px solid #e0e0e0;
+position: relative;
+}
+h1 {
+font-size: 2.25rem;
+font-weight: 700;
+color: #1f2937;
+margin-bottom: 1.5rem;
+}
+.result-message {
+font-size: 1.5rem;
+font-weight: 700;
+margin-bottom: 2rem;
+color: #059669; /* Green for win */
+}
+.result-message.lose {
+color: #dc2626; /* Red for lose */
+}
+
+.category-list-container {
+display: flex;
+flex-direction: column;
+gap: 0.75rem;
+max-width: 500px; /* Adjust as needed */
+margin: 0 auto 2rem auto;
+text-align: left;
+}
+.group-item-result {
+padding: 0.75rem;
+border-radius: 0.5625rem;
+font-weight: 600;
+text-align: center;
+box-shadow: 0 3px 4.5px rgba(0, 0, 0, 0.1);
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+}
+.group-item-result .category-title {
+font-size: 0.9rem;
+margin-bottom: 0.1875rem;
+}
+.group-item-result .word-display {
+font-size: 0.8rem;
+font-weight: normal;
+}
+
+/* Group colors - must match game.html and make_game.html */
+:root {
+--group-0-bg: #fffbeb;
+--group-0-text: #f59e0b;
+--group-0-border: #fcd34d;
+
+--group-1-bg: #dcfce7;
+--group-1-text: #16a34a;
+--group-1-border: #86efac;
+
+--group-2-bg: #eff6ff;
+--group-2-text: #2563eb;
+--group-2-border: #93c5fd;
+
+--group-3-bg: #f3e8ff;
+--group-3-text: #9333ea;
+--group-3-border: #d8b4fe;
+}
+
+.button-area {
+display: flex;
+flex-wrap: wrap;
+justify-content: center;
+gap: 1rem;
+margin-top: 2rem;
+}
+.play-again-button, .save-game-button {
+padding: 0.75rem 1.5rem;
+font-size: 0.9375rem;
+border-radius: 0.75rem;
+cursor: pointer;
+box-shadow: 0 3px 7.5px rgba(0, 0, 0, 0.1);
+transition: all 0.2s ease-in-out;
+}
+.play-again-button {
+background-image: linear-gradient(to right top, #10b981, #059669);
+color: white;
+border: none;
+}
+.play-again-button:hover {
+transform: translateY(-2px);
+box-shadow: 0 4.5px 11.25px rgba(0, 0, 0, 0.15);
+}
+.save-game-button {
+background-color: #a7f3d0; /* Light green */
+color: #065f46; /* Darker green */
+border: 1px solid #6ee7b7;
+}
+.save-game-button:hover {
+transform: translateY(-2px);
+box-shadow: 0 4.5px 11.25px rgba(0, 0, 0, 0.15);
+background-color: #6ee7b7;
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 640px) {
+body {
+padding: 10px;
+}
+.container {
+padding: 1.5rem;
+border-radius: 1rem;
+}
+h1 {
+font-size: 1.75rem;
+}
+.result-message {
+font-size: 1.25rem;
+}
+.play-again-button, .save-game-button {
+padding: 0.6rem 1.2rem;
+font-size: 0.85rem;
+}
+.group-item-result .category-title {
+font-size: 0.8rem;
+}
+.group-item-result .word-display {
+font-size: 0.7rem;
+}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1 id="game-result-title">Game Result</h1>
+<p id="final-message" class="result-message"></p>
+<div id="result-categories-list" class="category-list-container">
+</div>
+
+<div class="button-area">
+<button id="play-again-button" class="play-again-button">One more play</button>
+<button id="save-game-button" class="save-game-button">Save this game</button>
+</div>
+</div>
+
+<script>
+const gameResultTitle = document.getElementById('game-result-title');
+const finalMessageElement = document.getElementById('final-message');
+const resultCategoriesList = document.getElementById('result-categories-list');
+const playAgainButton = document.getElementById('play-again-button');
+const saveGameButton = document.getElementById('save-game-button');
+
+const groupColors = [
+{ bg: '#fffbeb', text: '#f59e0b', border: '#fcd34d' },
+{ bg: '#dcfce7', text: '#16a34a', border: '#86efac' },
+{ bg: '#eff6ff', text: '#2563eb', border: '#93c5fd' },
+{ bg: '#f3e8ff', text: '#9333ea', border: '#d8b4fe' }
+];
+
+let loadedPuzzle = null;
+let loadedResult = null;
+
+function displayGameResult() {
+const storedResult = localStorage.getItem('connectionsGameResult');
+if (!storedResult) {
+alert('No game result found. Returning to start page.'); // アラートメッセージも変更
+window.location.href = 'index.html'; // 遷移先をindex.htmlに変更
+return;
+}
+
+loadedResult = JSON.parse(storedResult);
+loadedPuzzle = loadedResult.puzzle;
+
+gameResultTitle.textContent = loadedPuzzle.name ? `${loadedPuzzle.name} - Result` : 'Game Result';
+
+if (loadedResult.won) {
+finalMessageElement.textContent = 'Excellent work! You did it!';
+finalMessageElement.classList.add('text-green-600');
+finalMessageElement.classList.remove('text-red-600');
+} else {
+finalMessageElement.textContent = 'Game Over. Better luck next time!';
+finalMessageElement.classList.add('text-red-600');
+finalMessageElement.classList.remove('text-green-600');
+}
+
+const allGroupIndices = Array.from({length: loadedPuzzle.groups.length}, (_, i) => i);
+const sortedDisplayOrder = allGroupIndices.sort((a, b) => {
+const aGuessed = loadedResult.guessedGroupsIndices.includes(a);
+const bGuessed = loadedResult.guessedGroupsIndices.includes(b);
+
+if (aGuessed && !bGuessed) return -1;
+if (!aGuessed && bGuessed) return 1;
+return a - b;
+});
+
+resultCategoriesList.innerHTML = '';
+sortedDisplayOrder.forEach(groupIndex => {
+const category = loadedPuzzle.categories[groupIndex];
+const words = loadedPuzzle.groups[groupIndex];
+const color = groupColors[groupIndex];
+
+const groupItem = document.createElement('div');
+groupItem.classList.add('group-item-result');
+groupItem.style.backgroundColor = color.bg;
+groupItem.style.color = color.text;
+groupItem.style.borderColor = color.border;
+groupItem.style.borderWidth = '1px';
+
+const categoryTitle = document.createElement('div');
+categoryTitle.classList.add('category-title', 'font-bold');
+categoryTitle.textContent = category;
+
+const wordDisplay = document.createElement('div');
+wordDisplay.classList.add('word-display');
+wordDisplay.textContent = words.map(w => w.toUpperCase()).join(', ');
+
+groupItem.appendChild(categoryTitle);
+groupItem.appendChild(wordDisplay);
+resultCategoriesList.appendChild(groupItem);
+});
+}
+
+function saveGameToDB() {
+let allSavedPuzzles = JSON.parse(localStorage.getItem('allConnectionsPuzzles') || '[]');
+const existingIndex = allSavedPuzzles.findIndex(p => p.name === loadedPuzzle.name);
+if (existingIndex > -1) {
+alert(`Puzzle "${loadedPuzzle.name}" already exists. Overwriting.`);
+allSavedPuzzles[existingIndex] = loadedPuzzle;
+} else {
+allSavedPuzzles.push(loadedPuzzle);
+}
+localStorage.setItem('allConnectionsPuzzles', JSON.stringify(allSavedPuzzles));
+alert(`Puzzle "${loadedPuzzle.name}" saved!`);
+console.log('Saved puzzle to localStorage:', loadedPuzzle);
+
+saveGameButton.disabled = true;
+saveGameButton.textContent = 'Saved!';
+}
+
+playAgainButton.addEventListener('click', () => {
+localStorage.removeItem('connectionsGameResult'); // 結果データをクリア
+window.location.href = 'index.html'; // ★ここをindex.htmlに変更★
+});
+
+saveGameButton.addEventListener('click', saveGameToDB);
+
+document.addEventListener('DOMContentLoaded', displayGameResult);
+</script>
+</body>
+</html>
