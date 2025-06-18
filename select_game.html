@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connections - Select Puzzle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            position: relative;
+        }
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+        }
+        p {
+            color: #4b5563;
+            margin-bottom: 1rem;
+        }
+        .puzzle-item-card {
+            background-color: #f0f4f8;
+            border: 1px solid #d1d5db;
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s ease-in-out;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            display: flex; /* Flexboxを使って内容を配置 */
+            justify-content: space-between; /* 内容を左右に配置 */
+            align-items: center; /* 垂直方向中央揃え */
+        }
+        .puzzle-item-card:hover {
+            background-color: #e2e8f0;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        .puzzle-name {
+            flex-grow: 1; /* パズル名が残りのスペースを占める */
+            cursor: pointer; /* クリックでゲームを開始できるようにカーソルを設定 */
+        }
+
+        .delete-puzzle-button { /* 個別削除ボタンのスタイル */
+            background-color: #fbd38d; /* Light orange for delete */
+            color: #c05621; /* Dark orange text */
+            border: 1px solid #f6ad55;
+            padding: 0.4rem 0.8rem; /* 小さめのパディング */
+            font-size: 0.75rem; /* 小さめのフォント */
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            margin-left: 1rem; /* パズル名との間隔 */
+            flex-shrink: 0; /* 縮まないようにする */
+        }
+        .delete-puzzle-button:hover {
+            background-color: #f6ad55;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .button-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .back-button {
+            background-color: #cbd5e1;
+            color: #4b5563;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9375rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            box-shadow: 0 3px 7.5px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease-in-out;
+        }
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4.5px 11.25px rgba(0, 0, 0, 0.15);
+            background-color: #a7b7c9;
+        }
+
+        .clear-data-button {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9375rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            box-shadow: 0 3px 7.5px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease-in-out;
+        }
+        .clear-data-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4.5px 11.25px rgba(0, 0, 0, 0.15);
+            background-color: #fecaca;
+        }
+
+
+        /* Mobile specific adjustments */
+        @media (max-width: 640px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 1.5rem;
+                border-radius: 1rem;
+            }
+            h1 {
+                font-size: 1.75rem;
+            }
+            .puzzle-item-card {
+                padding: 0.8rem 1.2rem;
+                font-size: 0.9rem;
+                flex-direction: column; /* スマホでは縦並びにすることも可能 */
+                align-items: flex-start;
+            }
+            .puzzle-name {
+                margin-bottom: 0.5rem;
+            }
+            .delete-puzzle-button {
+                margin-left: 0;
+                width: 100%; /* スマホでは幅いっぱいに */
+            }
+            .back-button, .clear-data-button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Select a Saved Puzzle</h1>
+        <p>Choose a puzzle to play:</p>
+        
+        <div id="saved-puzzles-list" class="mt-8">
+            <p class="text-gray-500">No saved puzzles yet. Create one on the <a href="make_game.html" class="text-blue-600 hover:underline">Create Puzzle</a> page!</p>
+        </div>
+
+        <div class="button-area">
+            <button id="back-to-home-button" class="back-button">Back to Home</button>
+            <button id="clear-saved-games-button" class="clear-data-button">Clear All Saved Puzzles</button>
+        </div>
+    </div>
+
+    <script>
+        const puzzlesListDiv = document.getElementById('saved-puzzles-list');
+        const clearSavedGamesButton = document.getElementById('clear-saved-games-button');
+
+        function loadSavedGamesFromDB() {
+            const allSavedPuzzles = JSON.parse(localStorage.getItem('allConnectionsPuzzles') || '[]');
+
+            puzzlesListDiv.innerHTML = ''; // デフォルトメッセージをクリア
+
+            if (allSavedPuzzles.length > 0) {
+                allSavedPuzzles.forEach(puzzle => {
+                    const puzzleItem = document.createElement('div');
+                    puzzleItem.classList.add('puzzle-item-card');
+                    
+                    const puzzleNameSpan = document.createElement('span');
+                    puzzleNameSpan.classList.add('puzzle-name');
+                    puzzleNameSpan.textContent = puzzle.name; // ゲーム名のみを表示
+                    // パズル名をクリックしたらゲームを開始
+                    puzzleNameSpan.addEventListener('click', () => {
+                        localStorage.setItem('connectionsPuzzle', JSON.stringify(puzzle));
+                        window.location.href = 'game.html';
+                    });
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.classList.add('delete-puzzle-button');
+                    deleteButton.textContent = 'Delete';
+                    // 削除ボタンにイベントリスナーを追加
+                    deleteButton.addEventListener('click', (event) => {
+                        event.stopPropagation(); // 親要素のクリックイベントが発火しないようにする
+                        deleteIndividualPuzzle(puzzle.name); // パズル名を使って削除関数を呼び出す
+                    });
+
+                    puzzleItem.appendChild(puzzleNameSpan);
+                    puzzleItem.appendChild(deleteButton);
+                    puzzlesListDiv.appendChild(puzzleItem);
+                });
+                clearSavedGamesButton.style.display = 'inline-block';
+            } else {
+                 puzzlesListDiv.innerHTML = '<p class="text-gray-500">No saved puzzles yet. Create one on the <a href="make_game.html" class="text-blue-600 hover:underline">Create Puzzle</a> page!</p>';
+                 clearSavedGamesButton.style.display = 'none';
+            }
+        }
+
+        // 個別パズル削除関数
+        function deleteIndividualPuzzle(puzzleNameToDelete) {
+            if (confirm(`Are you sure you want to delete the puzzle "${puzzleNameToDelete}"?`)) {
+                let allSavedPuzzles = JSON.parse(localStorage.getItem('allConnectionsPuzzles') || '[]');
+                // 削除対象のパズル名と一致しないものだけをフィルタリングして新しい配列を作成
+                const updatedPuzzles = allSavedPuzzles.filter(puzzle => puzzle.name !== puzzleNameToDelete);
+
+                localStorage.setItem('allConnectionsPuzzles', JSON.stringify(updatedPuzzles)); // 更新された配列を保存
+                loadSavedGamesFromDB(); // リストを再描画
+                alert(`Puzzle "${puzzleNameToDelete}" has been deleted.`);
+            }
+        }
+
+
+        function clearSavedGames() {
+            if (confirm('Are you sure you want to delete all saved puzzles? This action cannot be undone.')) {
+                localStorage.removeItem('allConnectionsPuzzles');
+                loadSavedGamesFromDB();
+                alert('All saved puzzles have been deleted.');
+            }
+        }
+
+        document.getElementById('back-to-home-button').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        clearSavedGamesButton.addEventListener('click', clearSavedGames);
+
+        document.addEventListener('DOMContentLoaded', loadSavedGamesFromDB);
+    </script>
+</body>
+</html>
