@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connections - Create Puzzle</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+body {
+font-family: 'Inter', sans-serif;
+background-color: #f0f2f5;
+display: flex;
+justify-content: center;
+align-items: flex-start; /* Aligns to top, which is better for longer content */
+min-height: 100vh;
+padding: 20px;
+box-sizing: border-box;
+font-size: 16px; /* Base font size for rem calculations */
+}
+.game-container { /* Renamed from original for consistency with game.html */
+background-color: #ffffff;
+padding: 2.5rem;
+border-radius: 1.5rem;
+box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+max-width: 900px;
+width: 100%;
+text-align: center;
+border: 1px solid #e0e0e0;
+position: relative;
+}
+.puzzle-creation-section {
+display: flex;
+flex-direction: column;
+gap: 1.5rem;
+margin-bottom: 2rem;
+text-align: left;
+}
+.puzzle-creation-section label {
+font-weight: 600;
+color: #333;
+margin-bottom: 0.5rem;
+display: block;
+}
+.puzzle-creation-section textarea,
+.puzzle-creation-section input[type="text"] {
+width: 100%;
+padding: 0.75rem;
+border: 1px solid #d1d5db;
+border-radius: 0.5rem;
+font-size: 1rem;
+box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+transition: border-color 0.2s;
+}
+.puzzle-creation-section textarea:focus,
+.puzzle-creation-section input[type="text"]:focus {
+outline: none;
+border-color: #60a5fa;
+box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+}
+.group-input-area {
+display: grid;
+grid-template-columns: 1fr; /* Default to single column for mobile first */
+gap: 1rem;
+}
+@media (min-width: 768px) { /* Adjust breakpoint for larger screens */
+.group-input-area {
+grid-template-columns: repeat(2, 1fr);
+}
+}
+.group-item-input {
+border: 1px solid #e0e0e0;
+border-radius: 0.75rem;
+padding: 1rem;
+background-color: #f8fafc;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.create-puzzle-button {
+background-image: linear-gradient(to right top, #6366f1, #3b82f6);
+color: white;
+border: none;
+padding: 0.75rem 1.5rem;
+font-size: 0.9375rem;
+border-radius: 0.75rem;
+cursor: pointer;
+box-shadow: 0 3px 7.5px rgba(0, 0, 0, 0.1);
+transition: all 0.2s ease-in-out;
+}
+.create-puzzle-button:hover:not(:disabled) {
+transform: translateY(-2px);
+box-shadow: 0 4.5px 7.5px rgba(0, 0, 0, 0.15);
+}
+.create-puzzle-button:disabled {
+background-color: #cbd5e1;
+cursor: not-allowed;
+box-shadow: none;
+}
+/* Mobile specific adjustments (simplified for make_game) */
+@media (max-width: 640px) {
+body {
+padding: 10px;
+}
+.game-container {
+padding: 1rem;
+border-radius: 0.75rem;
+}
+h1 {
+font-size: 1.75rem;
+}
+.puzzle-creation-section h2 {
+font-size: 1.5rem;
+}
+.group-item-input {
+padding: 0.75rem;
+}
+.group-item-input label {
+font-size: 0.9rem;
+}
+.group-item-input input[type="text"] {
+font-size: 0.9rem;
+}
+.create-puzzle-button {
+padding: 0.7rem 1.2rem;
+font-size: 0.9rem;
+}
+}
+
+@media (max-width: 375px) {
+.game-container {
+padding: 0.75rem;
+}
+.create-puzzle-button {
+padding: 0.6rem 1rem;
+font-size: 0.8rem;
+}
+.puzzle-creation-section h2 {
+font-size: 1.35rem;
+}
+}
+</style>
+</head>
+<body>
+<div class="game-container">
+<h1 class="text-3xl font-bold text-gray-800 mb-6">Connections</h1>
+<div id="puzzle-creation-section" class="puzzle-creation-section">
+<h2 class="2xl:text-3xl lg:text-2xl md:text-xl sm:text-lg text-lg font-bold text-gray-700 mb-4">Puzzle creation</h2>
+
+<div class="group-item-input">
+<label for="game-name-input">Game Name:</label>
+<input type="text" id="game-name-input" placeholder="Ex: Daily Puzzle 1">
+</div>
+
+<div class="group-input-area">
+<div class="group-item-input">
+<label for="group1-words">Easy 4 words:</label>
+<input type="text" id="group1-words" placeholder="Ex: apple, banana, grape, orange">
+<label for="group1-category" class="mt-2">Group name:</label>
+<input type="text" id="group1-category" placeholder="Ex: fruits">
+</div>
+<div class="group-item-input">
+<label for="group2-words">Medium 4 words:</label>
+<input type="text" id="group2-words" placeholder="Ex: cat, dog, bird, fish">
+<label for="group2-category" class="mt-2">Group name:</label>
+<input type="text" id="group2-category" placeholder="Ex: pets">
+</div>
+<div class="group-item-input">
+<label for="group3-words">Hard 4 words:</label>
+<input type="text" id="group3-words" placeholder="Ex: red, blue, green, yellow">
+<label for="group3-category" class="mt-2">Group name:</label>
+<input type="text" id="group3-category" placeholder="Ex: color">
+</div>
+<div class="group-item-input">
+<label for="group4-words">Expert 4 words:</label>
+<input type="text" id="group4-words" placeholder="Ex: chair, table, sofa, bed">
+<label for="group4-category" class="mt-2">Group name:</label>
+<input type="text" id="group4-category" placeholder="Ex: furniture">
+</div>
+</div>
+
+<button id="create-puzzle-button" class="create-puzzle-button mt-4">Create a puzzle</button>
+<p id="puzzle-error-message" class="text-red-500 mt-2 hidden"></p>
+</div>
+</div>
+
+<script>
+const gameNameInput = document.getElementById('game-name-input');
+const groupWordsInputs = [
+document.getElementById('group1-words'),
+document.getElementById('group2-words'),
+document.getElementById('group3-words'),
+document.getElementById('group4-words')
+];
+const groupCategoryInputs = [
+document.getElementById('group1-category'),
+document.getElementById('group2-category'),
+document.getElementById('group3-category'),
+document.getElementById('group4-category')
+];
+const createPuzzleButton = document.getElementById('create-puzzle-button');
+const puzzleErrorMessage = document.getElementById('puzzle-error-message');
+
+function createPuzzle() {
+puzzleErrorMessage.classList.add('hidden');
+let parsedGroups = [];
+let parsedCategories = [];
+let wordsUsedInGroups = new Set();
+const gameName = gameNameInput.value.trim();
+if (!gameName) {
+puzzleErrorMessage.textContent = 'error: Please enter a game name.';
+puzzleErrorMessage.classList.remove('hidden');
+return;
+}
+
+for (let i = 0; i < 4; i++) {
+const groupWordsRaw = groupWordsInputs[i].value.trim();
+const groupCategory = groupCategoryInputs[i].value.trim();
+
+if (!groupWordsRaw || !groupCategory) {
+puzzleErrorMessage.textContent = `error: Group ${i+1} needs words and name.`;
+puzzleErrorMessage.classList.remove('hidden');
+return;
+}
+
+const groupWords = [...new Set(groupWordsRaw.split(/[\s,]+/).filter(w => w.length > 0).map(w => w.toLowerCase()))];
+if (groupWords.length !== 4) {
+puzzleErrorMessage.textContent = `error: Group ${i+1} needs 4 words (current: ${groupWords.length}).`;
+puzzleErrorMessage.classList.remove('hidden');
+return;
+}
+
+if (groupWords.some(word => wordsUsedInGroups.has(word))) {
+puzzleErrorMessage.textContent = `error: Word '${groupWords.find(word => wordsUsedInGroups.has(word))}' used before. It can be used only once.`;
+puzzleErrorMessage.classList.remove('hidden');
+return;
+}
+
+groupWords.forEach(word => wordsUsedInGroups.add(word));
+parsedGroups.push(groupWords);
+parsedCategories.push(groupCategory);
+}
+
+if (wordsUsedInGroups.size !== 16) {
+puzzleErrorMessage.textContent = `error: Total of 16 unique words required (current: ${wordsUsedInGroups.size}).`;
+puzzleErrorMessage.classList.remove('hidden');
+return;
+}
+
+const newPuzzle = {
+name: gameName,
+groups: parsedGroups,
+categories: parsedCategories
+};
+
+// パズルデータをlocalStorageに保存
+localStorage.setItem('connectionsPuzzle', JSON.stringify(newPuzzle));
+
+// game.html に遷移
+window.location.href = 'game.html';
+}
+
+createPuzzleButton.addEventListener('click', createPuzzle);
+</script>
+</body>
+</html>
