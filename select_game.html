@@ -45,41 +45,50 @@
             border-radius: 0.75rem;
             padding: 1rem 1.5rem;
             margin-bottom: 0.75rem;
+            cursor: pointer; /* カード全体がクリック可能であることを示す */
             transition: all 0.2s ease-in-out;
             text-align: left;
             font-weight: 600;
             color: #374151;
-            display: flex; /* Flexboxを使って内容を配置 */
-            justify-content: space-between; /* 内容を左右に配置 */
-            align-items: center; /* 垂直方向中央揃え */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .puzzle-item-card:hover {
             background-color: #e2e8f0;
             transform: translateY(-2px);
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
         }
-        .puzzle-name {
-            flex-grow: 1; /* パズル名が残りのスペースを占める */
-            cursor: pointer; /* クリックでゲームを開始できるようにカーソルを設定 */
+
+        .puzzle-item-card .puzzle-name {
+            flex-grow: 1;
+            margin-right: 1rem;
+            cursor: default;
         }
 
-        .delete-puzzle-button { /* 個別削除ボタンのスタイル */
-            background-color: #fbd38d; /* Light orange for delete */
-            color: #c05621; /* Dark orange text */
-            border: 1px solid #f6ad55;
-            padding: 0.4rem 0.8rem; /* 小さめのパディング */
-            font-size: 0.75rem; /* 小さめのフォント */
-            border-radius: 0.5rem;
+        /* ★ここから変更★ */
+        .delete-puzzle-button {
+            background-color: #fca5a5; /* Light red */
+            color: #991b1b; /* Darker red */
+            border: 1px solid #ef4444; /* Red border */
+            padding: 0.3rem 0.6rem; /* さらに小さく調整 */
+            font-size: 0.75rem;   /* さらに小さく調整 */
+            border-radius: 0.4rem; /* 少し小さく */
             cursor: pointer;
             transition: all 0.2s ease-in-out;
-            margin-left: 1rem; /* パズル名との間隔 */
-            flex-shrink: 0; /* 縮まないようにする */
+            white-space: nowrap; /* ボタンテキストが改行されないように */
+            height: 28px; /* 明示的な高さを指定してボタンの高さを揃える */
+            display: flex; /* flexboxで中央揃えにするため */
+            align-items: center; /* 垂直方向中央揃え */
+            justify-content: center; /* 水平方向中央揃え */
         }
         .delete-puzzle-button:hover {
-            background-color: #f6ad55;
+            background-color: #ef4444;
+            color: white;
             transform: translateY(-1px);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+        /* ★ここまで変更★ */
 
 
         .button-area {
@@ -140,16 +149,14 @@
             .puzzle-item-card {
                 padding: 0.8rem 1.2rem;
                 font-size: 0.9rem;
-                flex-direction: column; /* スマホでは縦並びにすることも可能 */
-                align-items: flex-start;
             }
-            .puzzle-name {
-                margin-bottom: 0.5rem;
-            }
+            /* ★ここから変更★ */
             .delete-puzzle-button {
-                margin-left: 0;
-                width: 100%; /* スマホでは幅いっぱいに */
+                padding: 0.25rem 0.5rem; /* モバイルでさらに小さく調整 */
+                font-size: 0.68rem;   /* モバイルでさらに小さく調整 */
+                height: 26px; /* モバイルでの高さも調整 */
             }
+            /* ★ここまで変更★ */
             .back-button, .clear-data-button {
                 padding: 0.6rem 1.2rem;
                 font-size: 0.85rem;
@@ -182,26 +189,26 @@
             puzzlesListDiv.innerHTML = ''; // デフォルトメッセージをクリア
 
             if (allSavedPuzzles.length > 0) {
-                allSavedPuzzles.forEach(puzzle => {
+                allSavedPuzzles.forEach((puzzle, index) => {
                     const puzzleItem = document.createElement('div');
                     puzzleItem.classList.add('puzzle-item-card');
                     
-                    const puzzleNameSpan = document.createElement('span');
-                    puzzleNameSpan.classList.add('puzzle-name');
-                    puzzleNameSpan.textContent = puzzle.name; // ゲーム名のみを表示
-                    // パズル名をクリックしたらゲームを開始
-                    puzzleNameSpan.addEventListener('click', () => {
+                    puzzleItem.addEventListener('click', () => {
                         localStorage.setItem('connectionsPuzzle', JSON.stringify(puzzle));
                         window.location.href = 'game.html';
                     });
 
+                    const puzzleNameSpan = document.createElement('span');
+                    puzzleNameSpan.classList.add('puzzle-name');
+                    puzzleNameSpan.textContent = puzzle.name;
+
                     const deleteButton = document.createElement('button');
                     deleteButton.classList.add('delete-puzzle-button');
                     deleteButton.textContent = 'Delete';
-                    // 削除ボタンにイベントリスナーを追加
+                    deleteButton.dataset.index = index;
                     deleteButton.addEventListener('click', (event) => {
-                        event.stopPropagation(); // 親要素のクリックイベントが発火しないようにする
-                        deleteIndividualPuzzle(puzzle.name); // パズル名を使って削除関数を呼び出す
+                        event.stopPropagation();
+                        deleteIndividualPuzzle(parseInt(event.target.dataset.index));
                     });
 
                     puzzleItem.appendChild(puzzleNameSpan);
@@ -215,19 +222,17 @@
             }
         }
 
-        // 個別パズル削除関数
-        function deleteIndividualPuzzle(puzzleNameToDelete) {
-            if (confirm(`Are you sure you want to delete the puzzle "${puzzleNameToDelete}"?`)) {
-                let allSavedPuzzles = JSON.parse(localStorage.getItem('allConnectionsPuzzles') || '[]');
-                // 削除対象のパズル名と一致しないものだけをフィルタリングして新しい配列を作成
-                const updatedPuzzles = allSavedPuzzles.filter(puzzle => puzzle.name !== puzzleNameToDelete);
-
-                localStorage.setItem('allConnectionsPuzzles', JSON.stringify(updatedPuzzles)); // 更新された配列を保存
-                loadSavedGamesFromDB(); // リストを再描画
-                alert(`Puzzle "${puzzleNameToDelete}" has been deleted.`);
+        function deleteIndividualPuzzle(indexToDelete) {
+            let allSavedPuzzles = JSON.parse(localStorage.getItem('allConnectionsPuzzles') || '[]');
+            
+            if (confirm(`Are you sure you want to delete "${allSavedPuzzles[indexToDelete].name}"?`)) {
+                allSavedPuzzles = allSavedPuzzles.filter((_, index) => index !== indexToDelete);
+                
+                localStorage.setItem('allConnectionsPuzzles', JSON.stringify(allSavedPuzzles));
+                alert('Puzzle deleted successfully.');
+                loadSavedGamesFromDB();
             }
         }
-
 
         function clearSavedGames() {
             if (confirm('Are you sure you want to delete all saved puzzles? This action cannot be undone.')) {
